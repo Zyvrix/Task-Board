@@ -12,6 +12,10 @@ build/
 .env
 .env.local
 
+# Local SQLite database
+dev.db
+dev.db-journal
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

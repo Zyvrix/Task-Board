@@ -1,25 +1,32 @@
 {
-  "name": "smart-bookmark-app",
+  "name": "task-board-assignment",
   "version": "1.0.0",
-  "description": "A real-time bookmark manager with Google OAuth",
+  "description": "A small full-stack task board assignment built with Next.js, TypeScript, Prisma, SQLite, and Tailwind CSS.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "db:push": "node scripts/init-db.mjs && prisma generate",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.8.0",
-    "@supabase/supabase-js": "^2.39.0",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
     "next": "^14.0.4",
+    "prisma": "^5.22.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.4",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.3"

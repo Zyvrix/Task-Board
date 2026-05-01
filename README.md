@@ -1,232 +1,170 @@
-# Smart Bookmark App
+# Task Board Assignment
 
-A real-time bookmark manager built with Next.js, Supabase, and Google OAuth. This application allows users to save, organize, and manage their bookmarks with real-time synchronization across multiple tabs and devices.
+A small full-stack task board built for the Digitally Next full-stack developer assignment.
 
-Live: https://smartbookapp-blush.vercel.app/
+## Assignment Requirement Coverage
 
-## Features
+This application includes both required parts:
 
-- Google OAuth authentication (no email/password)
-- Add bookmarks with URL and title
-- Private bookmarks 
-- Real-time updates across tabs without page refresh
-- Delete bookmarks
-- Deployed on Vercel with live URL
+- **Backend**: Next.js server actions in `app/actions.ts` handle signup, login, logout, task creation, and status updates.
+- **Database**: SQLite relational database is used with Prisma ORM. The schema is defined in `prisma/schema.prisma`.
+
+It is not a static-only frontend app. All user accounts, sessions, and tasks are stored in the database.
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
-- **Authentication**: Supabase Auth (Google OAuth)
-- **Database**: Supabase
-- **Real-time**: Supabase Realtime
-- **Styling**: Tailwind CSS
-- **Deployment**: Vercel
+- Next.js 14 with App Router
+- TypeScript
+- Tailwind CSS
+- Prisma ORM
+- SQLite relational database
+- Cookie-based sessions
+- bcrypt password hashing
+- Zod input validation
 
-## Live Demo
+## Project Workflow
 
+1. User opens the app.
+2. If there is no valid session cookie, the app shows the signup screen.
+3. User can create an account or switch to the login form.
+4. Signup/login submits to server actions, not client-only logic.
+5. Passwords are validated and hashed with bcrypt before storage.
+6. A session token is generated on the server and saved in the `Session` table.
+7. The session token is stored in an HTTP-only cookie.
+8. After authentication, the server loads only the logged-in user's tasks.
+9. User creates a task. The task is saved in the `Task` table with the logged-in user's `userId`.
+10. User updates task status. The server validates the status and updates only tasks owned by that user.
+11. On logout, the session row is deleted and the cookie is cleared.
 
+## Features
 
-## Setup Instructions
+- User signup and login
+- Secure password hashing
+- Authenticated session stored in an HTTP-only cookie
+- Create tasks with a title
+- View tasks created by the logged-in user only
+- Update task status between `Todo`, `In Progress`, and `Done`
+- Basic loading, empty, and responsive UI states
 
-### Prerequisites
+## Folder Structure
 
-- Node.js 18+ installed
-- A Supabase account
-- A Google Cloud Console account (for OAuth)
-- A Vercel account (for deployment)
+```text
+app/
+  actions.ts        Server actions for auth and task mutations
+  page.tsx          Server-rendered home page, auth gate, task loading
+  layout.tsx        Root layout and metadata
+  globals.css       Tailwind/global styles
 
-### 1. Clone the Repository
+components/
+  AuthPanel.tsx     Signup/login UI
+  TaskBoard.tsx     Logged-in task board UI
+  TaskForm.tsx      Create task form
+  SubmitButton.tsx  Pending-state submit button
+
+lib/
+  auth.ts           Session cookie and current-user lookup
+  prisma.ts         Prisma Client singleton
+
+prisma/
+  schema.prisma     User, Session, and Task relational schema
+
+scripts/
+  init-db.mjs       Local SQLite table initialization
+```
+
+## Authentication Flow
+
+1. A user signs up with name, email, and password.
+2. The password is hashed with bcrypt before storage.
+3. On signup or login, the server creates a session row with a random token.
+4. The token is stored in an HTTP-only cookie named `task_board_session`.
+5. Server-rendered pages and server actions read that cookie, load the matching session, and only return data for the current user.
+6. Signing out deletes the session from the database and clears the cookie.
+
+## Database Schema
+
+The app uses three relational tables:
+
+- `User`: account data, including unique email and hashed password.
+- `Session`: login sessions linked to a user with an expiry date.
+- `Task`: task title, status, timestamps, and `userId` foreign key.
+
+Relationships:
+
+- One user has many sessions.
+- One user has many tasks.
+- Deleting a user cascades to their sessions and tasks.
+
+The Prisma schema is in `prisma/schema.prisma`.
+
+## Main Implementation Details
+
+- `User.email` is unique, so duplicate signup is blocked.
+- `User.passwordHash` stores only the hashed password, never the plain password.
+- `Session.token` is a random server-generated token.
+- The session cookie is HTTP-only, so browser JavaScript cannot read it.
+- `Task.userId` links each task to its owner.
+- Task queries use `where: { userId: user.id }`, so users only see their own tasks.
+- Task status updates use `updateMany` with both `id` and `userId`, so a user cannot update another user's task by guessing an ID.
+- Zod validates email, password length, task title, and allowed task statuses.
+
+## Interview Explanation
+
+You can explain the project like this:
+
+> I built a small full-stack task board using Next.js App Router, TypeScript, Prisma, SQLite, and Tailwind CSS. The app has custom authentication with bcrypt password hashing and HTTP-only cookie sessions. After login, each user can create tasks, view only their own tasks, and update task status between Todo, In Progress, and Done. The backend is implemented with server actions, and the relational database has User, Session, and Task tables with proper foreign-key relationships.
+
+Important points to mention:
+
+- I used a relational database as required, not Firebase or MongoDB.
+- I used Prisma as the ORM.
+- Authentication is server-side and stores hashed passwords.
+- The UI is intentionally simple because the assignment prioritizes correctness and fundamentals.
+- The application has real backend mutations and database persistence.
+- Data ownership is enforced server-side through `userId` checks.
+
+## Run Locally
+
+Install dependencies:
 
 ```bash
-git clone <your-repo-url>
-cd smart-bookmark-app
 npm install
 ```
 
-### 2. Set Up Supabase
-
-1. Go to [supabase.com](https://supabase.com) and create a new project
-2. Wait for the database to initialize
-
-#### Create the Bookmarks Table
-
-In the Supabase SQL Editor, run this setup.sql file.
-
-#### Configure Google OAuth in Supabase
-
-1. In your Supabase project, go to **Authentication** → **Providers**
-2. Enable the **Google** provider
-3. Note down the **Callback URL** (Redirect URL) - you'll need this for Google Console
-
-### 3. Set Up Google OAuth
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the **Google+ API**
-4. Go to **Credentials** → **Create Credentials** → **OAuth client ID**
-5. Configure the OAuth consent screen (User type:External)
-6. Create OAuth 2.0 Client ID:
-   - Application type: Web application
-   - Authorized redirect URIs: Add the callback URL from Supabase (from step 2.2 above)
-   - Also add: `http://localhost:3000/api/auth/callback` for local development
-7. Copy the **Client ID** and **Client Secret**
-8. Go back to Supabase → **Authentication** → **Providers** → **Google**
-9. Paste the Client ID and Client Secret
-10. Save the configuration
-
-### 4. Configure Environment Variables
-
-Create a `.env.local` file in the root directory:
+Create the SQLite database and generate Prisma Client:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+npm run db:push
 ```
 
-Get these values from:
-- Supabase Dashboard → Project Settings → API
-- Copy the Project URL and anon/public key
-
-### 5. Run Locally
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the app.
+Open `http://localhost:3000`.
 
-### 6. Deploy to Vercel
+## Useful Commands
 
-1. Push your code to GitHub
-2. Go to [vercel.com](https://vercel.com)
-3. Click "Import Project"
-4. Select your GitHub repository
-5. Add environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-6. Click "Deploy"
-7. After deployment, copy the Vercel URL
-
-#### Update Google OAuth Redirect URIs
-
-1. Go to Google Cloud Console → APIs & Services → Credentials
-2. Open your OAuth 2.0 Client ID
-3. In Authorized redirect URIs, add: https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback
-4. Save
-
-#### Supabase URL Configuration
-
-1. In Supabase → Authentication → URL Configuration:
-2. Site URL → https://your-app.vercel.app
-3. Add your Vercel domain inside Redirect URLs
-4. Save
-
-## Problems Encountered and Solutions
-
-### Problem 1: Google OAuth Redirect Loop
-
-**Issue**: After signing in with Google, the app redirected back to the login page instead of staying authenticated..
-
-**Solution**: 
-- Implemented /api/auth/callback route.
-- Used createServerClient from @supabase/ssr.
-- Called supabase.auth.exchangeCodeForSession(code) correctly.
-- Ensured redirect URL matched Supabase dashboard configuration
-
-### Problem 2: Real-time Updates Not Working Across Tabs
-
-**Issue**: When adding a bookmark in one tab, it didn't appear in other open tabs without refresh.
-
-**Solution**:
-- Enabled Supabase Realtime for the bookmarks table using `alter publication supabase_realtime add table bookmarks;`
-- Set up a real-time subscription using `supabase.channel()` with postgres_changes event listener
-- Filtered the subscription by user_id to ensure users only receive updates for their own bookmarks
-- Properly cleaned up the subscription on component unmount
-
-### Problem 3: When deleting a bookmark, it did not disappear instantly unless the page was refreshed.
-
-**Issue**: The realtime payload for DELETE events requires payload.old, and UI was relying only on database response.
-
-**Solution**:
-- Added optimistic UI update (remove from state immediately).
-- Added proper handling for payload.old in realtime subscription.
-- Added rollback logic in case delete fails.
-
-### Problem 4: Supabase Realtime Subscription Issues
-
-**Issue**: Realtime was not triggering for specific user bookmarks.
-
-**Solution**:
-- Added filter inside subscription:
-  filter: `user_id=eq.${user.id}`
--This ensured only the logged-in user's data was tracked.
-
-## How It Works
-
-### Authentication Flow
-
-(User → Google → Supabase → Your App)
-1. User clicks "Sign in with Google"
-2. Supabase redirects to Google OAuth consent screen
-3. User authorizes the application
-4. Google redirects back to `/api/auth/callback` with authorization code
-5. Callback handler exchanges code for session
-6. User is redirected to home page with active session
-
-### Real-time Synchronization
-
-1. On login, app subscribes to bookmark changes for the current user
-2. Any INSERT/UPDATE/DELETE operation on bookmarks table triggers a real-time event
-3. Event is filtered by user_id (server-side filtering)
-4. Client receives event and updates local state
-5. UI updates automatically without page refresh
-6. Works across multiple tabs and devices simultaneously
-
-### Data Privacy
-
-- Each bookmark has a `user_id` foreign key linked to the authenticated user
-- Row Level Security (RLS) ensures users can only:
-  - View their own bookmarks
-  - Insert bookmarks with their own user_id
-  - Update their own bookmarks
-  - Delete their own bookmarks
-- Server-side enforcement prevents any data leakage
-
-
-
-## Project Structure
-
-```
-smart-bookmark-app/
-├── app/
-│   ├── api/
-│   │   └── auth/
-│   │       └── callback/
-│   │           └── route.ts      
-│   ├── globals.css                
-│   ├── layout.tsx                 
-│   └── page.tsx                   
-├── components/
-|   └──bookmarkUI.tsx
-├── lib/
-│   └── supabase.ts                
-├── .env.local.example             
-├── .gitignore    
-├── eslint.config.mjs                 
-├── next.config.js                 
-├── package.json                   
-├── postcss.config.js              
-├── README.md      
-├── setup.sql                
-├── tailwind.config.js             
-└── tsconfig.json                  
+```bash
+npm run lint
+npm run build
+npm run db:studio
 ```
 
+## Environment Variables
 
-## License
+Create `.env` from `.env.example`:
 
-MIT
+```bash
+DATABASE_URL="file:../dev.db"
+```
 
-## Contact
+The relative path is resolved by Prisma from the `prisma/` directory, so this points to `dev.db` in the project root.
 
-For questions or issues, please open an issue on the GitHub repository.
+## Deployment
+
+Deployment is optional for the assignment. If deployed, use Vercel or Render and provide the live URL here.
+
+Live URL: Not deployed yet.
