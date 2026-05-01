@@ -35,7 +35,7 @@ export default function AuthPanel() {
             </div>
             <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <strong className="block text-slate-950">Database</strong>
-              SQLite + Prisma
+              PostgreSQL + Prisma
             </div>
             <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <strong className="block text-slate-950">Security</strong>
