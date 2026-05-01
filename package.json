@@ -1,13 +1,13 @@
 {
   "name": "task-board-assignment",
   "version": "1.0.0",
-  "description": "A small full-stack task board assignment built with Next.js, TypeScript, Prisma, SQLite, and Tailwind CSS.",
+  "description": "A small full-stack task board assignment built with Next.js, TypeScript, Prisma, PostgreSQL, and Tailwind CSS.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma db push && next build",
     "start": "next start",
     "lint": "eslint .",
-    "db:push": "node scripts/init-db.mjs && prisma generate",
+    "db:push": "prisma db push",
     "db:studio": "prisma studio"
   },
   "dependencies": {

@@ -7,7 +7,7 @@ A small full-stack task board built for the Digitally Next full-stack developer 
 This application includes both required parts:
 
 - **Backend**: Next.js server actions in `app/actions.ts` handle signup, login, logout, task creation, and status updates.
-- **Database**: SQLite relational database is used with Prisma ORM. The schema is defined in `prisma/schema.prisma`.
+- **Database**: PostgreSQL relational database is used with Prisma ORM. The schema is defined in `prisma/schema.prisma`.
 
 It is not a static-only frontend app. All user accounts, sessions, and tasks are stored in the database.
 
@@ -17,7 +17,7 @@ It is not a static-only frontend app. All user accounts, sessions, and tasks are
 - TypeScript
 - Tailwind CSS
 - Prisma ORM
-- SQLite relational database
+- PostgreSQL relational database
 - Cookie-based sessions
 - bcrypt password hashing
 - Zod input validation
@@ -67,9 +67,6 @@ lib/
 
 prisma/
   schema.prisma     User, Session, and Task relational schema
-
-scripts/
-  init-db.mjs       Local SQLite table initialization
 ```
 
 ## Authentication Flow
@@ -116,7 +113,7 @@ Install dependencies:
 npm install
 ```
 
-Create the SQLite database and generate Prisma Client:
+Create/update the database tables and generate Prisma Client:
 
 ```bash
 npm run db:push
@@ -143,13 +140,13 @@ npm run db:studio
 Create `.env` from `.env.example`:
 
 ```bash
-DATABASE_URL="file:../dev.db"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=require"
 ```
 
-The relative path is resolved by Prisma from the `prisma/` directory, so this points to `dev.db` in the project root.
+Use the PostgreSQL connection string provided by your database host. On Vercel, create a Postgres database from the Storage tab and use the generated `DATABASE_URL`.
 
 ## Deployment
 
-Deployment is optional for the assignment. If deployed, use Vercel or Render and provide the live URL here.
+Deployment is optional for the assignment. If deployed, use Vercel or Render with a hosted PostgreSQL database and provide the live URL here.
 
 Live URL: Not deployed yet.
