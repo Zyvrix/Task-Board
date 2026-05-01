@@ -149,4 +149,4 @@ Use the PostgreSQL connection string provided by your database host. On Vercel, 
 
 Deployment is optional for the assignment. If deployed, use Vercel or Render with a hosted PostgreSQL database and provide the live URL here.
 
-Live URL: Not deployed yet.
+Live URL: https://task-board-xi-brown.vercel.app
