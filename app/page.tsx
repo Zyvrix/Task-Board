@@ -3,6 +3,9 @@ import TaskBoard from '@/components/TaskBoard'
 import { getCurrentUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export default async function Home() {
   const user = await getCurrentUser()
 
