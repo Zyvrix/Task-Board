@@ -108,21 +108,6 @@ The Prisma schema is in `prisma/schema.prisma`.
 - Task status updates use `updateMany` with both `id` and `userId`, so a user cannot update another user's task by guessing an ID.
 - Zod validates email, password length, task title, and allowed task statuses.
 
-## Interview Explanation
-
-You can explain the project like this:
-
-> I built a small full-stack task board using Next.js App Router, TypeScript, Prisma, SQLite, and Tailwind CSS. The app has custom authentication with bcrypt password hashing and HTTP-only cookie sessions. After login, each user can create tasks, view only their own tasks, and update task status between Todo, In Progress, and Done. The backend is implemented with server actions, and the relational database has User, Session, and Task tables with proper foreign-key relationships.
-
-Important points to mention:
-
-- I used a relational database as required, not Firebase or MongoDB.
-- I used Prisma as the ORM.
-- Authentication is server-side and stores hashed passwords.
-- The UI is intentionally simple because the assignment prioritizes correctness and fundamentals.
-- The application has real backend mutations and database persistence.
-- Data ownership is enforced server-side through `userId` checks.
-
 ## Run Locally
 
 Install dependencies:
