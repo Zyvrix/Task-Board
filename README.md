@@ -13,7 +13,7 @@ It is not a static-only frontend app. All user accounts, sessions, and tasks are
 
 ## Tech Stack
 
-- Next.js 14 with App Router
+- Next.js 17 with App Router
 - TypeScript
 - Tailwind CSS
 - Prisma ORM
